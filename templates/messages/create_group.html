@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Create Group — PoetryHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="poem-card p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <a href="{% url 'inbox' %}" class="btn btn-sm btn-outline-glass rounded-circle" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h3 style="font-family:'Playfair Display',serif; font-weight:700; margin-bottom:0.15rem; color:#fff;">Create a Poetry Group</h3>
+                        <p class="text-muted small mb-0">Create a collaborative circle for workshops, styles, or discussions.</p>
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Group Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Group Icon / Avatar</label>
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}<div class="text-danger small mt-1">{{ form.avatar.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Add Initial Members</label>
+                        <div class="rounded-3 p-3" style="max-height: 200px; overflow-y:auto; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-glass);">
+                            {% if all_users %}
+                                {% for u in all_users %}
+                                    <div class="form-check d-flex align-items-center justify-content-between py-1">
+                                        <label class="form-check-label d-flex align-items-center gap-2 cursor-pointer w-100" for="user_{{ u.pk }}">
+                                            {% if u.avatar %}
+                                                <img src="{{ u.avatar.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                                            {% else %}
+                                                <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;color:white;font-size:0.75rem;font-weight:700;">
+                                                    {{ u.name|first|upper }}
+                                                </div>
+                                            {% endif %}
+                                            <span class="text-light">{{ u.name }} <small class="text-muted">({{ u.email }})</small></span>
+                                        </label>
+                                        <input class="form-check-input ms-2" type="checkbox" name="members" value="{{ u.pk }}" id="user_{{ u.pk }}">
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-muted small">No other poets registered yet. You can add them later!</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-custom px-4">
+                            <i class="bi bi-people-fill me-1"></i> Create Group
+                        </button>
+                        <a href="{% url 'inbox' %}" class="btn btn-outline-glass px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

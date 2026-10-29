@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PoetryHub{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0818;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-hover: rgba(255, 255, 255, 0.07);
+            --border-glass: rgba(255, 255, 255, 0.09);
+            --border-glass-subtle: rgba(255, 255, 255, 0.05);
+            --text-main: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.4);
+            --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --accent-gradient: linear-gradient(135deg, #a855f7, #ec4899);
+            --rose: #fb7185;
+            --glass-blur: blur(20px);
+            --sidebar-width: 250px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Ambient Background & Glowing Orbs ── */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 15% 20%, rgba(126, 34, 206, 0.18) 0%, transparent 40%),
+                        radial-gradient(circle at 85% 75%, rgba(219, 39, 119, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+                        #0a0818;
+            z-index: -2;
+        }
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            z-index: -1;
+            pointer-events: none;
+            animation: orbFloat 14s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 450px; height: 450px; background: #7e22ce; top: -150px; left: -150px; }
+        .orb-2 { width: 500px; height: 500px; background: #be185d; bottom: -150px; right: -150px; animation-duration: 18s; }
+        @keyframes orbFloat {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(40px) scale(1.08); }
+        }
+
+        /* ── Instagram-Style Left Sidebar (Desktop) ── */
+        .ig-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: rgba(10, 8, 24, 0.78);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--border-glass);
+            padding: 1.5rem 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 1020;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .ig-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            letter-spacing: -0.5px;
+        }
+        .ig-brand span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ig-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex-grow: 1;
+        }
+
+        .ig-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 0.98rem;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .ig-nav-link i {
+            font-size: 1.35rem;
+            transition: transform 0.2s;
+            width: 24px;
+            text-align: center;
+        }
+        .ig-nav-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(3px);
+        }
+        .ig-nav-link:hover i {
+            transform: scale(1.15);
+            color: #c084fc;
+        }
+        .ig-nav-link.active {
+            color: #ffffff;
+            font-weight: 700;
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+        }
+        .ig-nav-link.active i {
+            color: #c084fc;
+        }
+
+        .ig-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 50px;
+            margin-left: auto;
+        }
+
+        /* ── Main Content Area ── */
+        .ig-main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding-bottom: 3rem;
+            transition: margin-left 0.25s;
+        }
+
+        /* ── Mobile Top Header & Bottom Bar ── */
+        .ig-mobile-top {
+            display: none;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 8, 24, 0.85);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0.75rem 1.25rem;
+            z-index: 1010;
+        }
+        .ig-mobile-bottom {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 8, 24, 0.9);
+            backdrop-filter: var(--glass-blur);
+            border-top: 1px solid var(--border-glass);
+            padding: 0.65rem 1.25rem;
+            z-index: 1010;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .ig-mobile-bottom .ig-nav-link {
+            padding: 0.5rem;
+            font-size: 1.4rem;
+        }
+
+        @media (max-width: 991px) {
+            .ig-sidebar { display: none; }
+            .ig-main-content { margin-left: 0; padding-bottom: 5rem; }
+            .ig-mobile-top { display: flex; align-items: center; justify-content: space-between; }
+            .ig-mobile-bottom { display: flex; }
+        }
+
+        /* ── Stories / Circles Ring ── */
+        .story-ring-wrap {
+            display: inline-block;
+            padding: 2.5px;
+            border-radius: 50%;
+            background: var(--ig-gradient);
+            box-shadow: 0 0 12px rgba(220, 39, 67, 0.35);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .story-ring-wrap:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 18px rgba(220, 39, 67, 0.6);
+        }
+        .story-ring-wrap img, .story-ring-wrap .story-placeholder {
+            border: 2px solid var(--bg-dark);
+            border-radius: 50%;
+            display: block;
+        }
+
+        /* ── Instagram-Style Post Card ── */
+        .ig-post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .ig-post-card:hover {
+            border-color: rgba(168, 85, 247, 0.35);
+            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.12);
+        }
+
+        .ig-post-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.15rem;
+            border-bottom: 1px solid var(--border-glass-subtle);
+        }
+
+        /* ── Aesthetic Poetry Canvas (Instagram "Image" Area) ── */
+        .ig-poem-canvas {
+            position: relative;
+            background: radial-gradient(circle at 50% 30%, rgba(168, 85, 247, 0.14) 0%, rgba(10, 8, 24, 0.95) 75%),
+                        linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.4) 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-glass-subtle);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .ig-poem-canvas .quote-icon {
+            font-size: 2rem;
+            color: rgba(192, 132, 252, 0.35);
+            margin-bottom: 0.75rem;
+        }
+        .ig-poem-canvas .canvas-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .ig-poem-canvas .canvas-verses {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #e2e8f0;
+            white-space: pre-line;
+            max-width: 480px;
+            margin: 0 auto;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+        }
+
+        .ig-post-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.15rem 0.4rem;
+        }
+        .ig-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.45rem;
+            padding: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+        .ig-action-btn:hover {
+            color: #fff;
+            transform: scale(1.15);
+        }
+        .ig-action-btn.liked {
+            color: #ef4444;
+            animation: heartPop 0.35s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+        }
+        @keyframes heartPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+
+        .ig-post-info {
+            padding: 0.4rem 1.15rem 0.9rem;
+        }
+        .ig-likes-count {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+            margin-bottom: 0.35rem;
+        }
+        .ig-caption {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 0.4rem;
+        }
+        .ig-comments-preview {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .ig-date {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ig-comment-input-row {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--border-glass-subtle);
+            padding: 0.4rem 1rem;
+        }
+        .ig-comment-input {
+            flex-grow: 1;
+            background: transparent !important;
+            border: none !important;
+            color: #fff !important;
+            font-size: 0.9rem;
+            padding: 8px 6px;
+            outline: none;
+        }
+        .ig-comment-input::placeholder { color: var(--text-muted) !important; }
+        .ig-post-btn {
+            background: none;
+            border: none;
+            color: #c084fc;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .ig-post-btn:hover { color: #f472b6; }
+
+        /* ── Profile Grid Layout (Instagram 3-Column Profile) ── */
+        .ig-grid-item {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            background: radial-gradient(circle at 50% 40%, rgba(168, 85, 247, 0.18) 0%, rgba(15, 12, 35, 0.95) 80%);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.25rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.25s, border-color 0.25s;
+        }
+        .ig-grid-item:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168, 85, 247, 0.45);
+        }
+        .ig-grid-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 8, 24, 0.82);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .ig-grid-item:hover .ig-grid-overlay {
+            opacity: 1;
+        }
+
+        /* ── Buttons & General ── */
+        .btn-primary-custom {
+            background: var(--ig-gradient);
+            border: none;
+            border-radius: 50px;
+            padding: 8px 24px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.35);
+            transition: all 0.25s;
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 39, 67, 0.55);
+            color: white;
+        }
+
+        .btn-outline-glass {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            border-radius: 50px;
+            transition: all 0.2s;
+        }
+        .btn-outline-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .genre-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 50px;
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.28);
+        }
+
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid var(--border-glass) !important;
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #ffffff !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #c084fc !important;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25) !important;
+            outline: none;
+        }
+
+        /* ── Dropdowns & Modals ── */
+        .dropdown-menu {
+            background: rgba(18, 14, 38, 0.92) !important;
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass) !important;
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+        }
+        .dropdown-item {
+            color: var(--text-secondary) !important;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+        .dropdown-item:hover {
+            background: rgba(168, 85, 247, 0.2) !important;
+            color: #fff !important;
+        }
+        .modal-content {
+            background: rgba(16, 13, 34, 0.94) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            border: 1px solid var(--border-glass) !important;
+            color: #fff !important;
+        }
+        .modal-header, .modal-footer { border-color: var(--border-glass) !important; }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Ambient Ambient Glow -->
+<div class="ambient-bg"></div>
+<div class="ambient-orb orb-1"></div>
+<div class="ambient-orb orb-2"></div>
+
+{% if user.is_authenticated %}
+<!-- ── Desktop Instagram-Style Left Sidebar ── -->
+<aside class="ig-sidebar">
+    <a href="{% url 'feed' %}" class="ig-brand">Poetry<span>Hub</span></a>
+
+    <ul class="ig-nav">
+        <li>
+            <a href="{% url 'feed' %}" class="ig-nav-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
+                <i class="bi bi-house-door{% if request.resolver_match.url_name == 'feed' %}-fill{% endif %}"></i>
+                <span>Home</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'feed' %}#explore" class="ig-nav-link">
+                <i class="bi bi-compass"></i>
+                <span>Explore</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'inbox' %}" class="ig-nav-link {% if 'messages' in request.path %}active{% endif %}">
+                <i class="bi bi-chat-dots{% if 'messages' in request.path %}-fill{% endif %}"></i>
+                <span>Messages</span>
+                {% if unread_dm and unread_dm > 0 %}
+                    <span class="ig-badge">{{ unread_dm }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'inbox' %}#groups" class="ig-nav-link">
+                <i class="bi bi-people"></i>
+                <span>Circles</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'create_poem' %}" class="ig-nav-link {% if request.resolver_match.url_name == 'create_poem' %}active{% endif %}">
+                <i class="bi bi-plus-square{% if request.resolver_match.url_name == 'create_poem' %}-fill{% endif %}"></i>
+                <span>Create</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'profile' user.pk %}" class="ig-nav-link {% if request.resolver_match.url_name == 'profile' and request.resolver_match.kwargs.username_id == user.pk %}active{% endif %}">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+                {% else %}
+                    <span style="width:24px; height:24px; border-radius:50%; background:var(--ig-gradient); display:inline-flex; align-items:center; justify-content:center; color:white; font-size:0.65rem; font-weight:700;">
+                        {{ user.name|first|upper }}
+                    </span>
+                {% endif %}
+                <span>Profile</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Bottom Sidebar Options -->
+    <div class="dropdown mt-auto pt-3 border-top" style="border-color:var(--border-glass-subtle) !important;">
+        <a href="#" class="ig-nav-link dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
+            <i class="bi bi-list"></i>
+            <span>More</span>
+        </a>
+        <ul class="dropdown-menu shadow">
+            <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><a class="dropdown-item" href="{% url 'create_group' %}"><i class="bi bi-people-fill me-2"></i>New Circle</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Log out</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</aside>
+
+<!-- ── Mobile Top Header ── -->
+<div class="ig-mobile-top">
+    <a href="{% url 'feed' %}" class="ig-brand p-0" style="font-size:1.5rem;">Poetry<span>Hub</span></a>
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'create_poem' %}" class="text-light fs-4"><i class="bi bi-plus-square"></i></a>
+        <a href="{% url 'inbox' %}" class="text-light fs-4 position-relative">
+            <i class="bi bi-chat-dots"></i>
+            {% if unread_dm and unread_dm > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-dark rounded-circle"></span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<!-- ── Mobile Bottom Navigation Bar ── -->
+<nav class="ig-mobile-bottom">
+    <a href="{% url 'feed' %}" class="ig-nav-link text-light"><i class="bi bi-house-door-fill"></i></a>
+    <a href="{% url 'feed' %}#explore" class="ig-nav-link text-light"><i class="bi bi-compass"></i></a>
+    <a href="{% url 'create_poem' %}" class="ig-nav-link text-light"><i class="bi bi-plus-square"></i></a>
+    <a href="{% url 'inbox' %}" class="ig-nav-link text-light position-relative">
+        <i class="bi bi-chat-dots"></i>
+        {% if unread_dm and unread_dm > 0 %}<span class="position-absolute top-1 start-100 translate-middle p-1 bg-danger rounded-circle"></span>{% endif %}
+    </a>
+    <a href="{% url 'profile' user.pk %}" class="ig-nav-link text-light">
+        <span style="width:24px; height:24px; border-radius:50%; background:var(--ig-gradient); display:inline-flex; align-items:center; justify-content:center; color:white; font-size:0.7rem; font-weight:700;">
+            {{ user.name|first|upper }}
+        </span>
+    </a>
+</nav>
+{% endif %}
+
+<!-- ── Main Content Container ── -->
+<main class="{% if user.is_authenticated %}ig-main-content{% endif %}">
+    <!-- Flash Messages -->
+    <div class="container-fluid px-md-5 pt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 rounded-4" style="background:rgba(168, 85, 247, 0.2); backdrop-filter:blur(10px); color:#f3e8ff; border:1px solid rgba(168, 85, 247, 0.35) !important;" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

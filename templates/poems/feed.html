@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% block title %}PoetryHub — Feed{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-3">
+    <div class="row justify-content-center">
+
+        <!-- ── Main Center Feed Column (Instagram Width: ~620px) ── -->
+        <div class="col-12 col-lg-7 col-xl-6" style="max-width: 640px;">
+
+            <!-- ── 1. Top Stories / Circles Bar ── -->
+            <div class="ig-post-card p-3 mb-4" style="background: rgba(255,255,255,0.03);">
+                <div class="d-flex align-items-center gap-3 overflow-auto pb-1" style="scrollbar-width: none;">
+                    
+                    <!-- My Story / Create -->
+                    <div class="text-center flex-shrink-0" style="width: 72px;">
+                        <a href="{% url 'create_poem' %}" class="text-decoration-none">
+                            <div class="position-relative d-inline-block">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; border:2px solid var(--border-glass);">
+                                {% else %}
+                                    <div style="width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1.1rem; border:2px solid var(--border-glass);">
+                                        {{ user.name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="position-absolute bottom-0 end-0 bg-primary rounded-circle text-white d-flex align-items-center justify-content-center" style="width:20px; height:20px; font-size:0.75rem; border:2px solid var(--bg-dark);">
+                                    <i class="bi bi-plus"></i>
+                                </span>
+                            </div>
+                            <small class="d-block text-truncate text-muted mt-1" style="font-size:0.72rem;">Your Story</small>
+                        </a>
+                    </div>
+
+                    <!-- Suggested Poets Stories -->
+                    {% for poet in suggested_poets %}
+                        <div class="text-center flex-shrink-0" style="width: 72px;">
+                            <a href="{% url 'profile' poet.pk %}" class="text-decoration-none">
+                                <div class="story-ring-wrap">
+                                    {% if poet.avatar %}
+                                        <img src="{{ poet.avatar.url }}" style="width:54px; height:54px; object-fit:cover;">
+                                    {% else %}
+                                        <div class="story-placeholder" style="width:54px; height:54px; background:linear-gradient(135deg,#06b6d4,#8b5cf6); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1rem;">
+                                            {{ poet.name|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <small class="d-block text-truncate text-light mt-1" style="font-size:0.72rem;">{{ poet.name }}</small>
+                            </a>
+                        </div>
+                    {% endfor %}
+
+                    <!-- Circles Stories -->
+                    {% for grp in active_groups %}
+                        <div class="text-center flex-shrink-0" style="width: 72px;">
+                            <a href="{% url 'group_chat' grp.pk %}" class="text-decoration-none">
+                                <div class="story-ring-wrap" style="background: linear-gradient(45deg, #10b981, #06b6d4);">
+                                    {% if grp.avatar %}
+                                        <img src="{{ grp.avatar.url }}" style="width:54px; height:54px; object-fit:cover;">
+                                    {% else %}
+                                        <div class="story-placeholder" style="width:54px; height:54px; background:#1e1b4b; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1rem;">
+                                            {{ grp.name|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <small class="d-block text-truncate text-light mt-1" style="font-size:0.72rem;">{{ grp.name }}</small>
+                            </a>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <!-- ── 2. Genre Filter Chips (Instagram Category Pill Bar) ── -->
+            <div class="d-flex gap-2 overflow-auto mb-4 pb-1" style="scrollbar-width: none;">
+                <a href="{% url 'feed' %}" class="filter-btn {% if not genre_filter %}active{% endif %}" style="padding:4px 14px; font-size:0.78rem;">All</a>
+                {% for val, label in genres %}
+                    <a href="?genre={{ val }}" class="filter-btn {% if genre_filter == val %}active{% endif %}" style="padding:4px 14px; font-size:0.78rem;">{{ label }}</a>
+                {% endfor %}
+            </div>
+
+            <!-- ── 3. Instagram-Style Posts Stream ── -->
+            {% if poems %}
+                {% for poem in poems %}
+                <article class="ig-post-card" id="poem-post-{{ poem.pk }}">
+                    
+                    <!-- Post Header: Avatar, Name, Genre, Dropdown -->
+                    <div class="ig-post-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{% url 'profile' poem.author.pk %}" class="text-decoration-none story-ring-wrap" style="padding: 1.5px;">
+                                {% if poem.author.avatar %}
+                                    <img src="{{ poem.author.avatar.url }}" style="width:34px; height:34px; object-fit:cover;">
+                                {% else %}
+                                    <div class="story-placeholder" style="width:34px; height:34px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:white; font-size:0.75rem; font-weight:700;">
+                                        {{ poem.author.name|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </a>
+                            <div>
+                                <a href="{% url 'profile' poem.author.pk %}" class="fw-bold text-light text-decoration-none d-block" style="font-size:0.9rem; line-height:1.2;">
+                                    {{ poem.author.name }}
+                                </a>
+                                <span class="genre-badge" style="font-size:0.65rem; padding:1px 6px;">{{ poem.get_genre_display }}</span>
+                            </div>
+                        </div>
+
+                        <!-- 3-Dots Menu -->
+                        <div class="dropdown">
+                            <button class="btn btn-link text-muted p-0 fs-5 text-decoration-none" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li><a class="dropdown-item" href="{% url 'poem_detail' poem.pk %}"><i class="bi bi-arrows-fullscreen me-2"></i>View Full Poem</a></li>
+                                <li><a class="dropdown-item" href="{% url 'start_dm' poem.author.pk %}"><i class="bi bi-send me-2"></i>Send Message</a></li>
+                                {% if poem.author == request.user %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-warning" href="{% url 'edit_poem' poem.pk %}"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'delete_poem' poem.pk %}"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Area: Aesthetic Dark Glass Poetry Slate -->
+                    <div class="ig-poem-canvas" onclick="location.href='{% url 'poem_detail' poem.pk %}'">
+                        <i class="bi bi-quote quote-icon"></i>
+                        <h4 class="canvas-title">{{ poem.title }}</h4>
+                        <div class="canvas-verses">{{ poem.content|truncatechars:260 }}</div>
+                        {% if poem.content|length > 260 %}
+                            <small class="text-primary mt-2" style="font-size:0.78rem;">...tap to read more</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Buttons: Like, Comment, Send, Bookmark -->
+                    <div class="ig-post-actions">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Bouncing Heart -->
+                            <button class="ig-action-btn like-btn-ig {% if poem.pk in user_liked_ids %}liked{% endif %}"
+                                    data-poem-id="{{ poem.pk }}"
+                                    onclick="toggleLikePost(this, {{ poem.pk }})">
+                                <i class="bi bi-heart{% if poem.pk in user_liked_ids %}-fill{% endif %}"></i>
+                            </button>
+                            
+                            <!-- Comment Button -->
+                            <button class="ig-action-btn" onclick="focusCommentInput({{ poem.pk }})">
+                                <i class="bi bi-chat"></i>
+                            </button>
+
+                            <!-- DM / Share Button -->
+                            <a href="{% url 'start_dm' poem.author.pk %}" class="ig-action-btn text-decoration-none">
+                                <i class="bi bi-send"></i>
+                            </a>
+                        </div>
+
+                        <!-- Bookmark -->
+                        <button class="ig-action-btn" onclick="this.querySelector('i').classList.toggle('bi-bookmark-fill'); this.querySelector('i').classList.toggle('bi-bookmark');">
+                            <i class="bi bi-bookmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Likes, Caption, Comments Preview -->
+                    <div class="ig-post-info">
+                        <div class="ig-likes-count">
+                            <span class="like-counter-{{ poem.pk }}">{{ poem.like_count }}</span> likes
+                        </div>
+
+                        <!-- Caption / Poet line -->
+                        <div class="ig-caption">
+                            <span class="fw-bold text-light me-1">{{ poem.author.name }}</span>
+                            <span class="text-secondary">{{ poem.title }}</span>
+                        </div>
+
+                        <!-- Comments Preview -->
+                        {% if poem.comment_count > 0 %}
+                            <a href="{% url 'poem_detail' poem.pk %}#comments" class="ig-comments-preview text-decoration-none d-block">
+                                View all {{ poem.comment_count }} comments
+                            </a>
+                        {% endif %}
+
+                        <!-- Stream of recent comments for this post -->
+                        <div id="comments-box-{{ poem.pk }}">
+                            {% for c in poem.comments.all|slice:":2" %}
+                                <div class="small mb-1 text-truncate">
+                                    <span class="fw-bold text-light me-1" style="font-size:0.85rem;">{{ c.user.name }}</span>
+                                    <span class="text-secondary" style="font-size:0.85rem;">{{ c.text }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="ig-date mt-1">{{ poem.created_at|timesince }} ago</div>
+                    </div>
+
+                    <!-- Inline Comment Box (Instagram Style) -->
+                    <form class="ig-comment-input-row" onsubmit="submitInlineComment(event, {{ poem.pk }})">
+                        {% csrf_token %}
+                        <input type="text" id="comment-input-{{ poem.pk }}" class="ig-comment-input" placeholder="Add a comment..." autocomplete="off">
+                        <button type="submit" class="ig-post-btn">Post</button>
+                    </form>
+
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="ig-post-card p-5 text-center">
+                    <div style="font-size:3.5rem;">📜</div>
+                    <h4 class="fw-bold text-light mt-3">No poems found</h4>
+                    <p class="text-muted small">Try a different category or be the first poet to share a piece!</p>
+                    <a href="{% url 'create_poem' %}" class="btn btn-primary-custom mt-2">Create First Post</a>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- ── Right Sidebar: Instagram-Style Suggestions Column (Desktop Only) ── -->
+        <div class="d-none d-lg-block col-lg-4 col-xl-4 ps-xl-5">
+            <div class="position-sticky" style="top: 2rem;">
+
+                <!-- Current User Profile Card -->
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom" style="border-color:var(--border-glass-subtle) !important;">
+                    <a href="{% url 'profile' user.pk %}" class="d-flex align-items-center gap-3 text-decoration-none">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" style="width:48px; height:48px; border-radius:50%; object-fit:cover;">
+                        {% else %}
+                            <div style="width:48px; height:48px; border-radius:50%; background:var(--ig-gradient); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1.1rem;">
+                                {{ user.name|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold text-light" style="font-size:0.95rem;">{{ user.name }}</div>
+                            <div class="text-muted small text-truncate" style="max-width:140px;">{{ user.email }}</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'edit_profile' %}" class="text-primary fw-semibold small text-decoration-none">Edit</a>
+                </div>
+
+                <!-- Suggested Poets Section -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted fw-bold small text-uppercase" style="letter-spacing:0.05em; font-size:0.75rem;">Suggested Poets</span>
+                    <a href="{% url 'inbox' %}" class="text-light small text-decoration-none fw-semibold">See All</a>
+                </div>
+
+                <div class="d-flex flex-direction-column flex-column gap-3 mb-4">
+                    {% for p in suggested_poets %}
+                    <div class="d-flex align-items-center justify-content-between">
+                        <a href="{% url 'profile' p.pk %}" class="d-flex align-items-center gap-2 text-decoration-none">
+                            {% if p.avatar %}
+                                <img src="{{ p.avatar.url }}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
+                            {% else %}
+                                <div style="width:38px; height:38px; border-radius:50%; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:0.85rem;">
+                                    {{ p.name|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div class="fw-bold text-light small">{{ p.name }}</div>
+                                <div class="text-muted" style="font-size:0.7rem;">Active poet</div>
+                            </div>
+                        </a>
+                        <a href="{% url 'start_dm' p.pk %}" class="text-primary small fw-bold text-decoration-none">Message</a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Active Poetry Circles -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted fw-bold small text-uppercase" style="letter-spacing:0.05em; font-size:0.75rem;">Active Circles</span>
+                    <a href="{% url 'create_group' %}" class="text-primary small text-decoration-none fw-semibold">+ New</a>
+                </div>
+
+                <div class="d-flex flex-column gap-3 mb-4">
+                    {% for grp in active_groups %}
+                    <div class="d-flex align-items-center justify-content-between">
+                        <a href="{% url 'group_chat' grp.pk %}" class="d-flex align-items-center gap-2 text-decoration-none">
+                            {% if grp.avatar %}
+                                <img src="{{ grp.avatar.url }}" style="width:36px; height:36px; border-radius:10px; object-fit:cover;">
+                            {% else %}
+                                <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#06b6d4,#8b5cf6); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:0.85rem;">
+                                    {{ grp.name|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div class="fw-bold text-light small">{{ grp.name }}</div>
+                                <div class="text-muted" style="font-size:0.7rem;">{{ grp.member_count }} members</div>
+                            </div>
+                        </a>
+                        <a href="{% url 'group_chat' grp.pk %}" class="text-light small text-decoration-none"><i class="bi bi-chevron-right"></i></a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Mini Footer -->
+                <div class="text-muted" style="font-size:0.72rem; line-height:1.6;">
+                    About &bull; Help &bull; API &bull; Privacy &bull; Terms &bull; PoetryHub 2026
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // AJAX Like Toggle with Bouncing Animation
+    function toggleLikePost(btn, poemId) {
+        fetch(`/poem/${poemId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(r => r.json())
+        .then(data => {
+            const icon = btn.querySelector('i');
+            const counter = document.querySelector(`.like-counter-${poemId}`);
+            if (data.liked) {
+                btn.classList.add('liked');
+                icon.className = 'bi bi-heart-fill';
+            } else {
+                btn.classList.remove('liked');
+                icon.className = 'bi bi-heart';
+            }
+            if (counter) counter.textContent = data.count;
+        });
+    }
+
+    function focusCommentInput(poemId) {
+        const input = document.getElementById(`comment-input-${poemId}`);
+        if (input) input.focus();
+    }
+
+    // Inline Comment Submission via AJAX
+    function submitInlineComment(e, poemId) {
+        e.preventDefault();
+        const input = document.getElementById(`comment-input-${poemId}`);
+        const text = input.value.trim();
+        if (!text) return;
+
+        const formData = new FormData();
+        formData.append('text', text);
+
+        fetch(`/poem/${poemId}/comment/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const box = document.getElementById(`comments-box-${poemId}`);
+                const line = document.createElement('div');
+                line.className = 'small mb-1 text-truncate';
+                line.innerHTML = `<span class="fw-bold text-light me-1" style="font-size:0.85rem;">${escapeHtml(data.author)}</span><span class="text-secondary" style="font-size:0.85rem;">${escapeHtml(data.text)}</span>`;
+                box.appendChild(line);
+                input.value = '';
+            }
+        })
+        .catch(() => {});
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — PoetryHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            <div class="text-center mb-4">
+                <h1 style="font-family:'Playfair Display',serif;font-size:2.5rem;color:#8b5cf6;font-weight:700;">PoetryHub</h1>
+                <p class="text-muted">Where words find their home</p>
+            </div>
+
+            <div class="auth-card">
+                <h2 class="auth-title mb-1">Welcome Back</h2>
+                <p class="text-muted mb-4" style="font-size:0.9rem;">Sign in to continue your poetry journey</p>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-envelope me-1"></i>Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </button>
+                </form>
+
+                <p class="text-center mt-3 mb-0 text-muted" style="font-size:0.9rem;">
+                    New here? <a href="{% url 'register' %}" style="color:#8b5cf6;font-weight:600;">Create an account</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

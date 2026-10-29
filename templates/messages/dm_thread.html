@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Chat with {{ other.name }} — PoetryHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: 60vh;
+        overflow-y: auto;
+        padding: 1.25rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        border: 1px solid var(--border-glass);
+    }
+    .chat-bubble {
+        max-width: 75%;
+        padding: 10px 18px;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.45;
+        position: relative;
+        word-wrap: break-word;
+    }
+    .chat-bubble.me {
+        align-self: flex-end;
+        background: var(--accent-gradient);
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+    }
+    .chat-bubble.them {
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        border: 1px solid var(--border-glass);
+        border-bottom-left-radius: 4px;
+        backdrop-filter: blur(10px);
+    }
+    .chat-time {
+        font-size: 0.7rem;
+        margin-top: 4px;
+        opacity: 0.75;
+    }
+    .chat-time.me { text-align: right; color: rgba(255, 255, 255, 0.85); }
+    .chat-time.them { text-align: left; color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Chat Header -->
+            <div class="poem-card p-3 mb-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{% url 'inbox' %}" class="btn btn-sm btn-outline-glass rounded-circle" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    {% if other.avatar %}
+                        <img src="{{ other.avatar.url }}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                        <div style="width:44px; height:44px; border-radius:50%; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">
+                            {{ other.name|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h5 class="mb-0 fw-bold text-light">{{ other.name }}</h5>
+                        <a href="{% url 'profile' other.pk %}" class="text-muted small text-decoration-none">
+                            <i class="bi bi-person me-1"></i>View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages Box -->
+            <div class="poem-card p-3">
+                <div class="chat-container mb-3" id="chatContainer">
+                    {% for msg in msgs %}
+                        <div class="chat-bubble {% if msg.sender == request.user %}me{% else %}them{% endif %}" data-msg-id="{{ msg.pk }}">
+                            <div>{{ msg.content }}</div>
+                            <div class="chat-time {% if msg.sender == request.user %}me{% else %}them{% endif %}">
+                                {{ msg.created_at|date:"H:i" }}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted my-auto" id="noMessages">
+                            <i class="bi bi-chat-heart" style="font-size: 2.5rem; color:#8b5cf6;"></i>
+                            <p class="mt-2 mb-0">Say hello to {{ other.name }}! Send your first message.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Input Form -->
+                <form id="dmForm" method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="content" id="msgContent" class="form-control rounded-pill px-3" placeholder="Write a message..." autocomplete="off" required>
+                    <button type="submit" class="btn btn-primary-custom rounded-pill px-4">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatContainer = document.getElementById('chatContainer');
+    const dmForm = document.getElementById('dmForm');
+    const msgContent = document.getElementById('msgContent');
+    const noMessages = document.getElementById('noMessages');
+    const convId = {{ conv.pk }};
+
+    function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    scrollToBottom();
+
+    // Send message via AJAX
+    dmForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const text = msgContent.value.trim();
+        if (!text) return;
+
+        const formData = new FormData(dmForm);
+
+        fetch("{% url 'dm_thread' conv.pk %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (noMessages) noMessages.remove();
+            appendMessage(data.content, data.time, true, data.id);
+            msgContent.value = '';
+            scrollToBottom();
+        })
+        .catch(err => {
+            dmForm.submit(); // Fallback if AJAX fails
+        });
+    });
+
+    function appendMessage(content, time, isMe, msgId) {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${isMe ? 'me' : 'them'}`;
+        if (msgId) bubble.setAttribute('data-msg-id', msgId);
+        bubble.innerHTML = `
+            <div>${escapeHtml(content)}</div>
+            <div class="chat-time ${isMe ? 'me' : 'them'}">${time}</div>
+        `;
+        chatContainer.appendChild(bubble);
+        scrollToBottom();
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Live polling for incoming messages
+    function pollNewMessages() {
+        const bubbles = document.querySelectorAll('.chat-bubble[data-msg-id]');
+        let lastId = 0;
+        if (bubbles.length > 0) {
+            lastId = bubbles[bubbles.length - 1].getAttribute('data-msg-id') || 0;
+        }
+
+        fetch(`/messages/dm/${convId}/poll/?last_id=${lastId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    if (noMessages) noMessages.remove();
+                    data.messages.forEach(m => {
+                        appendMessage(m.content, m.time, m.is_me, m.id);
+                    });
+                }
+            })
+            .catch(() => {});
+    }
+
+    setInterval(pollNewMessages, 3000);
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+*.sqlite3
+*.log
+.env
+venv/
+env/
+staticfiles/
+media/avatars/
+media/group_avatars/
+.DS_Store

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.name }} (@{{ profile_user.name|slugify }}) — PoetryHub{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 935px;">
+
+    <!-- ── 1. Instagram-Style Profile Header ── -->
+    <header class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4 mb-5 pb-3">
+        
+        <!-- Big Avatar with Story Ring -->
+        <div class="story-ring-wrap p-1 flex-shrink-0" style="padding: 4px;">
+            {% if profile_user.avatar %}
+                <img src="{{ profile_user.avatar.url }}" style="width:130px; height:130px; border-radius:50%; object-fit:cover; border:3px solid var(--bg-dark);">
+            {% else %}
+                <div style="width:130px; height:130px; border-radius:50%; background:var(--ig-gradient); display:flex; align-items:center; justify-content:center; color:white; font-size:3.2rem; font-weight:700; border:3px solid var(--bg-dark);">
+                    {{ profile_user.name|first|upper }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Info & Actions Column -->
+        <div class="flex-grow-1 text-center text-md-start">
+            
+            <!-- Handle & Action Buttons Row -->
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 mb-3">
+                <h3 class="fw-bold mb-0 text-light" style="font-size: 1.45rem;">{{ profile_user.name }}</h3>
+                
+                {% if profile_user == request.user %}
+                    <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-glass px-3 py-1 fw-semibold">
+                        Edit profile
+                    </a>
+                    <a href="{% url 'create_poem' %}" class="btn btn-sm btn-outline-glass px-3 py-1 fw-semibold">
+                        <i class="bi bi-plus-lg me-1"></i> New Poem
+                    </a>
+                {% else %}
+                    <a href="{% url 'start_dm' profile_user.pk %}" class="btn btn-sm btn-primary-custom px-4 py-1 fw-semibold">
+                        <i class="bi bi-chat-dots-fill me-1"></i> Message
+                    </a>
+                {% endif %}
+
+                <div class="dropdown">
+                    <button class="btn btn-link text-muted p-0 fs-5 text-decoration-none" data-bs-toggle="dropdown">
+                        <i class="bi bi-gear"></i>
+                    </button>
+                    <ul class="dropdown-menu shadow">
+                        {% if profile_user == request.user %}
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Account Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">Log Out</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{% url 'start_dm' profile_user.pk %}">Send Message</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Stats Row: Posts, Likes, Circles -->
+            <div class="d-flex gap-4 justify-content-center justify-content-md-start mb-3">
+                <span class="text-light"><strong class="text-white">{{ poem_count }}</strong> posts</span>
+                <span class="text-light"><strong class="text-white">{{ total_likes }}</strong> total likes</span>
+                <span class="text-light"><strong class="text-white">{{ profile_user.chat_groups.count }}</strong> circles</span>
+            </div>
+
+            <!-- Bio & Details -->
+            <div>
+                <div class="fw-bold text-light" style="font-size:0.95rem;">{{ profile_user.name }}</div>
+                <div class="text-muted small mb-1"><i class="bi bi-envelope me-1"></i>{{ profile_user.email }}</div>
+                {% if profile_user.bio %}
+                    <p class="mb-2 text-secondary" style="font-size:0.92rem; max-width:520px; line-height:1.5;">{{ profile_user.bio }}</p>
+                {% endif %}
+                <small class="text-muted" style="font-size:0.78rem;"><i class="bi bi-calendar3 me-1"></i>Joined {{ profile_user.date_joined|date:"F Y" }}</small>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ── 2. Instagram Tab Switcher (POSTS / CIRCLES) ── -->
+    <ul class="nav nav-tabs justify-content-center border-0 mb-4" id="profileTabs" role="tablist" style="border-top: 1px solid var(--border-glass-subtle) !important;">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active bg-transparent border-0 py-3 px-4 text-uppercase fw-bold text-light" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab" style="font-size:0.75rem; letter-spacing:0.1em; border-top: 2px solid white !important; border-radius:0;">
+                <i class="bi bi-grid-3x3 me-1"></i> Poems ({{ poem_count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link bg-transparent border-0 py-3 px-4 text-uppercase fw-semibold text-muted" id="groups-tab" data-bs-toggle="tab" data-bs-target="#groups-pane" type="button" role="tab" style="font-size:0.75rem; letter-spacing:0.1em; border-radius:0;">
+                <i class="bi bi-people me-1"></i> Circles
+            </button>
+        </li>
+    </ul>
+
+    <!-- ── 3. Tabs Content: Instagram 3-Column Square Grid ── -->
+    <div class="tab-content" id="profileTabsContent">
+        
+        <!-- Tab 1: 3-Column Square Poems Grid -->
+        <div class="tab-pane fade show active" id="posts-pane" role="tabpanel">
+            {% if poems %}
+                <div class="row g-3 g-md-4">
+                    {% for poem in poems %}
+                        <div class="col-4">
+                            <a href="{% url 'poem_detail' poem.pk %}" class="ig-grid-item">
+                                
+                                <!-- Card content: Title & snippet -->
+                                <i class="bi bi-quote mb-2" style="font-size:1.4rem; color:rgba(192, 132, 252, 0.4);"></i>
+                                <h6 class="fw-bold text-white text-center mb-1 text-truncate w-100" style="font-family:'Playfair Display', serif; font-size:1.05rem;">
+                                    {{ poem.title }}
+                                </h6>
+                                <span class="genre-badge d-none d-md-inline-block mt-2">{{ poem.get_genre_display }}</span>
+
+                                <!-- Hover Overlay: Like and Comment count (like Instagram) -->
+                                <div class="ig-grid-overlay">
+                                    <span><i class="bi bi-heart-fill me-1 text-danger"></i> {{ poem.like_count }}</span>
+                                    <span><i class="bi bi-chat-fill me-1 text-white"></i> {{ poem.comment_count }}</span>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div style="font-size:3.5rem;">📜</div>
+                    <h5 class="fw-bold text-light mt-3">No poems shared yet</h5>
+                    <p class="text-muted small">
+                        {% if profile_user == request.user %}
+                            Express your thoughts and publish your first poem.
+                            <br><a href="{% url 'create_poem' %}" class="btn btn-primary-custom btn-sm mt-3">Write Poem</a>
+                        {% else %}
+                            {{ profile_user.name }} has not published any poems yet.
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Tab 2: Circles -->
+        <div class="tab-pane fade" id="groups-pane" role="tabpanel">
+            <div class="row g-3">
+                {% for grp in profile_user.chat_groups.all %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 d-flex align-items-center justify-content-between" style="border: 1px solid var(--border-glass) !important; background: rgba(255,255,255,0.03);">
+                            <div class="d-flex align-items-center gap-3">
+                                {% if grp.avatar %}
+                                    <img src="{{ grp.avatar.url }}" style="width:48px; height:48px; border-radius:12px; object-fit:cover;">
+                                {% else %}
+                                    <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,#06b6d4,#8b5cf6); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">
+                                        {{ grp.name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-light">{{ grp.name }}</h6>
+                                    <small class="text-muted">{{ grp.member_count }} members</small>
+                                </div>
+                            </div>
+                            <a href="{% url 'group_chat' grp.pk %}" class="btn btn-sm btn-outline-glass px-3">Open</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-5">
+                        <div style="font-size:3rem;">👥</div>
+                        <h6 class="fw-bold text-light mt-2">Not in any circles</h6>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
