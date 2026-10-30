@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+import uuid
 
 
 class CustomUserManager(BaseUserManager):
@@ -29,6 +30,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_email_verified = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -37,6 +39,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.name
+
+
+class EmailVerificationToken(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='verification_token')
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Token for {self.user.email}'
 
 
 GENRE_CHOICES = [

@@ -4,9 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 from .models import (
     CustomUser, Poem, Like, Comment, GENRE_CHOICES,
-    Conversation, DirectMessage, ChatGroup, GroupMessage
+    Conversation, DirectMessage, ChatGroup, GroupMessage,
+    EmailVerificationToken
 )
 from .forms import (
     RegisterForm, LoginForm, PoemForm, CommentForm, ProfileEditForm,
@@ -32,9 +39,12 @@ def auth_view(request):
             reg_form = RegisterForm(request.POST)
             if reg_form.is_valid():
                 user = reg_form.save()
-                login(request, user)
-                messages.success(request, f'Welcome to PoetryHub, {user.name}! 🎉')
-                return redirect('feed')
+                user.is_email_verified = False
+                user.save()
+                # Create verification token and send email
+                token_obj, _ = EmailVerificationToken.objects.get_or_create(user=user)
+                _send_verification_email(request, user, token_obj)
+                return render(request, 'auth/email_verification_sent.html', {'email': user.email})
             mode = 'register'
 
         elif action == 'login':
@@ -44,9 +54,12 @@ def auth_view(request):
                 password = log_form.cleaned_data['password']
                 user = authenticate(request, username=email, password=password)
                 if user:
-                    login(request, user)
-                    messages.success(request, f'Welcome back, {user.name}! ✨')
-                    return redirect(request.GET.get('next', 'feed'))
+                    if not user.is_email_verified:
+                        messages.error(request, 'Please verify your email before logging in. Check your inbox.')
+                    else:
+                        login(request, user)
+                        messages.success(request, f'Welcome back, {user.name}! ✨')
+                        return redirect(request.GET.get('next', 'feed'))
                 else:
                     messages.error(request, 'Invalid email or password.')
             mode = 'login'
@@ -70,6 +83,114 @@ def logout_view(request):
     logout(request)
     messages.info(request, "You've been logged out. See you soon!")
     return redirect('auth')
+
+
+def _send_verification_email(request, user, token_obj):
+    """Helper: send verification email."""
+    protocol = 'https' if request.is_secure() else 'http'
+    domain = request.get_host()
+    verify_url = f'{protocol}://{domain}/verify-email/{token_obj.token}/'
+    subject = 'Verify your PoetryHub account'
+    html_message = render_to_string('auth/verify_email_body.html', {
+        'user': user,
+        'verify_url': verify_url,
+    })
+    send_mail(
+        subject,
+        f'Hi {user.name}, verify your email: {verify_url}',
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        html_message=html_message,
+        fail_silently=True,
+    )
+
+
+def verify_email_view(request, token):
+    """Verify user email via token link."""
+    try:
+        token_obj = EmailVerificationToken.objects.get(token=token)
+        user = token_obj.user
+        user.is_email_verified = True
+        user.save()
+        token_obj.delete()
+        return render(request, 'auth/email_verified.html', {'user': user})
+    except EmailVerificationToken.DoesNotExist:
+        return render(request, 'auth/email_verified.html', {'error': True})
+
+
+def resend_verification_view(request):
+    """Resend verification email."""
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = CustomUser.objects.get(email=email)
+            if user.is_email_verified:
+                messages.info(request, 'This email is already verified. You can sign in.')
+                return redirect('auth')
+            token_obj, _ = EmailVerificationToken.objects.get_or_create(user=user)
+            _send_verification_email(request, user, token_obj)
+            return render(request, 'auth/email_verification_sent.html', {'email': email, 'resent': True})
+        except CustomUser.DoesNotExist:
+            messages.error(request, 'No account found with that email.')
+    return render(request, 'auth/resend_verification.html')
+
+
+def password_reset_request_view(request):
+    """Request a password reset link."""
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = CustomUser.objects.get(email=email)
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            reset_url = f'{protocol}://{domain}/reset-password/{uid}/{token}/'
+            subject = 'Reset your PoetryHub password'
+            html_message = render_to_string('auth/password_reset_email.html', {
+                'user': user,
+                'reset_url': reset_url,
+            })
+            send_mail(
+                subject,
+                f'Hi {user.name}, reset your password: {reset_url}',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                html_message=html_message,
+                fail_silently=True,
+            )
+        except CustomUser.DoesNotExist:
+            pass  # Don't reveal whether email exists
+        return render(request, 'auth/password_reset_done.html', {'email': email})
+    return render(request, 'auth/password_reset.html')
+
+
+def password_reset_confirm_view(request, uidb64, token):
+    """Confirm password reset with new password."""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password = request.POST.get('password', '')
+            confirm = request.POST.get('confirm_password', '')
+            if len(password) < 8:
+                return render(request, 'auth/password_reset_confirm.html', {
+                    'valid': True, 'error': 'Password must be at least 8 characters.'
+                })
+            if password != confirm:
+                return render(request, 'auth/password_reset_confirm.html', {
+                    'valid': True, 'error': 'Passwords do not match.'
+                })
+            user.set_password(password)
+            user.save()
+            return render(request, 'auth/password_reset_complete.html')
+        return render(request, 'auth/password_reset_confirm.html', {'valid': True})
+    else:
+        return render(request, 'auth/password_reset_confirm.html', {'valid': False})
 
 
 # ─── Feed & Poem Views ─────────────────────────────────────────────────────────

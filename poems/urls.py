@@ -8,6 +8,15 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
+    # Email verification
+    path('verify-email/<uuid:token>/', views.verify_email_view, name='verify_email'),
+    path('resend-verification/', views.resend_verification_view, name='resend_verification'),
+
+    # Password reset
+    path('forgot-password/', views.password_reset_request_view, name='password_reset'),
+    path('forgot-password/done/', views.password_reset_request_view, name='password_reset_done'),
+    path('reset-password/<str:uidb64>/<str:token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
+
     # Feed
     path('', views.feed_view, name='feed'),
 

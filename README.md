@@ -5,7 +5,9 @@
 ## 🌟 Key Features
 
 - 🎭 **Interactive Animated Split-Panel Auth** — Smooth sliding transition between Sign In & Registration with floating glowing orbs and frosted glassmorphism cards.
-- 🔐 **Custom Authentication** — Secure credentials requiring **Email, Full Name, and Password** via a customized `AbstractBaseUser`.
+- 🔐 **Custom Authentication & Verification** — Secure credentials requiring **Email, Full Name, and Password** via a customized `AbstractBaseUser`. Includes **email verification tokens** on signup and resend verification handling.
+- 🔑 **Forgot Password & Password Reset Flow** — Complete tokenized password recovery workflow with cryptographically secure, expiring reset links and custom-styled HTML transactional emails.
+- 📸 **Instagram-Inspired UI Experience** — Left-docked navigation sidebar, active circles/poets stories tray, feed cards with instant reaction actions, and 3-column grid poet portfolio on profiles.
 - 📝 **Poem Publishing & Rich Typography** — Publish poems with custom genres, preserving line breaks and styling with *Playfair Display* & *Inter*.
 - ❤️ **Real-time AJAX Likes & Comments** — Instant like/unlike interactions with dynamic counter updates without full page reloads.
 - 💬 **Direct Messaging (DMs)** — 1-on-1 private messaging between poets directly from their profile pages with live polling updates and unread message indicators.
@@ -60,8 +62,9 @@ All prebuilt accounts have their password set to `password123` (Admin is `admin1
 ## 📄 Resume Project Highlight (Copy-Paste Ready)
 
 > **PoetryHub — Full-Stack Social & Publishing Web Application**  
-> *Technologies: Python, Django, JavaScript, SQLite/PostgreSQL, Bootstrap 5, HTML5/CSS3*
+> *Technologies: Python, Django, JavaScript, SQLite/PostgreSQL, WhiteNoise, Bootstrap 5, HTML5/CSS3*
 > - Engineered a full-stack social web app in Django enabling poets to publish creative works, engage in 1-on-1 direct messaging, and collaborate in group chat circles.
-> - Implemented an interactive sliding glassmorphism authentication panel supporting custom email/name credentials and password verification.
-> - Developed real-time asynchronous communication systems with AJAX polling for instant direct messages, group chats, and poem like reactions.
-> - Designed normalized relational database schemas (`CustomUser`, `Poem`, `Conversation`, `ChatGroup`, `DirectMessage`) with Django ORM, queries optimization, and admin portal.
+> - Implemented an interactive sliding glassmorphism authentication system supporting email verification tokens, secure password reset workflows, and custom user models (`AbstractBaseUser`).
+> - Built an Instagram-inspired responsive UI with desktop sidebar navigation, stories tray, feed cards, and 3-column media grid layout.
+> - Developed real-time asynchronous communication systems with AJAX polling for instant direct messages, group chats, and poem like/comment reactions.
+> - Designed normalized relational database schemas (`CustomUser`, `Poem`, `Conversation`, `ChatGroup`, `DirectMessage`, `EmailVerificationToken`) with Django ORM, queries optimization, and admin moderation portal.

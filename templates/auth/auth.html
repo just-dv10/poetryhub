@@ -332,6 +332,10 @@
                     {% if log_form.password.errors %}<div class="error-text">{{ log_form.password.errors.0 }}</div>{% endif %}
                 </div>
 
+                <div style="text-align:right;margin:-8px 0 14px;">
+                    <a href="{% url 'password_reset' %}" style="color:#a78bfa;font-size:0.82rem;text-decoration:none;font-weight:500;transition:color 0.2s;" onmouseover="this.style.color='#c4b5fd'" onmouseout="this.style.color='#a78bfa'">Forgot password?</a>
+                </div>
+
                 <button type="submit" class="submit-btn">
                     <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
                 </button>

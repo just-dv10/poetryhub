@@ -17,6 +17,7 @@ def seed():
     admin.set_password('admin123')
     admin.is_staff = True
     admin.is_superuser = True
+    admin.is_email_verified = True
     admin.save()
 
     # 2. Prebuilt Poets
@@ -56,6 +57,7 @@ def seed():
             defaults={'name': udata['name'], 'bio': udata['bio']}
         )
         u.set_password(udata['password'])
+        u.is_email_verified = True
         u.save()
         poets[udata['email'].split('@')[0]] = u
         print(f"  ✓ User ready: {u.name} ({u.email})")

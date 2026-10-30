@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoetryHub — Resend Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; overflow: hidden; background: #0f0c29; }
+        .bg-animate { position: fixed; inset: 0; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); background-size: 400% 400%; animation: gs 8s ease infinite; z-index: 0; }
+        @keyframes gs { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.25; animation: fl 10s ease-in-out infinite; z-index: 0; }
+        .orb-1 { width: 400px; height: 400px; background: #8b5cf6; top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: #ec4899; bottom: -80px; right: -80px; animation-delay: 3s; }
+        .orb-3 { width: 200px; height: 200px; background: #06b6d4; top: 50%; left: 50%; animation-delay: 6s; }
+        @keyframes fl { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.05); } }
+        .wrapper { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { width: 480px; max-width: 100%; background: rgba(255,255,255,0.04); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); box-shadow: 0 32px 80px rgba(0,0,0,0.5); padding: 48px 44px; }
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #ec4899); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; color: white; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: white; margin-bottom: 8px; text-align: center; }
+        .sub { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-bottom: 28px; text-align: center; line-height: 1.5; }
+        .field-group { margin-bottom: 20px; }
+        .field-group label { display: block; font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+        .field-group input { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; color: white; font-size: 0.92rem; outline: none; transition: border-color 0.2s, background 0.2s; }
+        .field-group input::placeholder { color: rgba(255,255,255,0.3); }
+        .field-group input:focus { border-color: #8b5cf6; background: rgba(139,92,246,0.08); }
+        .submit-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none; border-radius: 50px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.5); }
+        .back-link { display: block; margin-top: 20px; text-align: center; color: #a78bfa; font-size: 0.85rem; text-decoration: none; transition: color 0.2s; }
+        .back-link:hover { color: #c4b5fd; }
+        .msg-box { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; padding: 10px 14px; color: #fca5a5; font-size: 0.85rem; margin-bottom: 16px; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="bg-animate"></div>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+<div class="wrapper">
+    <div class="card">
+        <div class="icon-circle"><i class="bi bi-envelope-check"></i></div>
+        <h1>Resend Verification</h1>
+        <p class="sub">Enter your email and we'll send a new verification link.</p>
+        {% if messages %}{% for message in messages %}<div class="msg-box">{{ message }}</div>{% endfor %}{% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="field-group">
+                <label><i class="bi bi-envelope me-1"></i>Email Address</label>
+                <input type="email" name="email" placeholder="you@example.com" required>
+            </div>
+            <button type="submit" class="submit-btn"><i class="bi bi-send me-1"></i> Send Verification Link</button>
+        </form>
+        <a href="{% url 'auth' %}" class="back-link"><i class="bi bi-arrow-left me-1"></i> Back to Sign In</a>
+    </div>
+</div>
+</body>
+</html>
