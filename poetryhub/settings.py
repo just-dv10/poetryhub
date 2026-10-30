@@ -8,6 +8,16 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load local .env file if present
+env_file = BASE_DIR / '.env'
+if env_file.exists():
+    with open(env_file, encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                k, v = line.split('=', 1)
+                os.environ[k.strip()] = v.strip()
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-poetryhub-change-this-in-production-xyz123')
 
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1')
