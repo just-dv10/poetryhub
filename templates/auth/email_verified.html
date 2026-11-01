@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PoetryHub — Email Verified</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; min-height: 100vh; overflow: hidden; background: #0f0c29; }
-        .bg-animate { position: fixed; inset: 0; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); background-size: 400% 400%; animation: gs 8s ease infinite; z-index: 0; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; overflow: hidden; background: #0e0c0a; }
+        .bg-animate { position: fixed; inset: 0; background: linear-gradient(135deg, #0e0c0a, #1a140f, #150f0b, #0e0c0a); background-size: 400% 400%; animation: gs 10s ease infinite; z-index: 0; }
         @keyframes gs { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.25; animation: fl 10s ease-in-out infinite; z-index: 0; }
-        .orb-1 { width: 400px; height: 400px; background: #8b5cf6; top: -100px; left: -100px; }
-        .orb-2 { width: 300px; height: 300px; background: #ec4899; bottom: -80px; right: -80px; animation-delay: 3s; }
-        .orb-3 { width: 200px; height: 200px; background: #06b6d4; top: 50%; left: 50%; animation-delay: 6s; }
-        @keyframes fl { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.05); } }
+        .orb { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.32; animation: fl 14s ease-in-out infinite; z-index: 0; }
+        .orb-1 { width: 450px; height: 450px; background: #d4af37; top: -120px; left: -120px; }
+        .orb-2 { width: 380px; height: 380px; background: #9a3412; bottom: -100px; right: -100px; animation-delay: 4s; }
+        .orb-3 { width: 260px; height: 260px; background: #78350f; top: 45%; left: 55%; animation-delay: 7s; }
+        @keyframes fl { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.06); } }
         .wrapper { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card { width: 520px; max-width: 100%; background: rgba(255,255,255,0.04); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); box-shadow: 0 32px 80px rgba(0,0,0,0.5); padding: 48px 44px; text-align: center; }
-        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; color: white; }
-        .icon-success { background: linear-gradient(135deg, #34d399, #06b6d4); }
-        .icon-error { background: linear-gradient(135deg, #f87171, #ec4899); }
-        h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: white; margin-bottom: 8px; }
-        .sub { color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.6; }
-        .action-btn { display: inline-block; padding: 13px 40px; background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none; border-radius: 50px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; text-decoration: none; }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.5); color: white; }
+        .card { width: 520px; max-width: 100%; background: rgba(24, 19, 15, 0.84); border-radius: 26px; border: 1px solid rgba(212, 175, 55, 0.25); backdrop-filter: blur(24px); box-shadow: 0 35px 90px rgba(0,0,0,0.8), 0 0 30px rgba(212, 175, 55, 0.08); padding: 48px 44px; text-align: center; }
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; color: #0e0c0a; box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35); }
+        .icon-success { background: linear-gradient(135deg, #fce9a6, #d4af37, #996515); }
+        .icon-error { background: linear-gradient(135deg, #f87171, #991b1b); color: white; }
+        h1 { font-family: 'Cinzel', 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: #fdfbf7; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .sub { color: #a69988; font-size: 0.95rem; margin-bottom: 28px; line-height: 1.6; }
+        .action-btn { display: inline-block; padding: 13px 40px; background: linear-gradient(135deg, #fce9a6 0%, #d4af37 50%, #996515 100%); border: none; border-radius: 50px; color: #0e0c0a; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; text-decoration: none; box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35); }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(212, 175, 55, 0.55); color: #000; }
     </style>
 </head>
 <body>
@@ -35,12 +35,12 @@
         {% if error %}
         <div class="icon-circle icon-error"><i class="bi bi-x-lg"></i></div>
         <h1>Invalid Link</h1>
-        <p class="sub">This verification link is invalid or has already been used.</p>
+        <p class="sub">This verification link is invalid or has already expired.</p>
         <a href="{% url 'resend_verification' %}" class="action-btn"><i class="bi bi-arrow-repeat me-1"></i> Resend Verification</a>
         {% else %}
         <div class="icon-circle icon-success"><i class="bi bi-check-lg"></i></div>
         <h1>Email Verified!</h1>
-        <p class="sub">Welcome to PoetryHub, {{ user.name }}! Your account is now active.</p>
+        <p class="sub">Welcome to PoetryHub, {{ user.name }}! Your sanctuary is now open.</p>
         <a href="{% url 'auth' %}" class="action-btn"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In Now</a>
         {% endif %}
     </div>

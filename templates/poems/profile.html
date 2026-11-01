@@ -82,7 +82,7 @@
     <!-- ── 2. Instagram Tab Switcher (POSTS / CIRCLES) ── -->
     <ul class="nav nav-tabs justify-content-center border-0 mb-4" id="profileTabs" role="tablist" style="border-top: 1px solid var(--border-glass-subtle) !important;">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active bg-transparent border-0 py-3 px-4 text-uppercase fw-bold text-light" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab" style="font-size:0.75rem; letter-spacing:0.1em; border-top: 2px solid white !important; border-radius:0;">
+            <button class="nav-link active bg-transparent border-0 py-3 px-4 text-uppercase fw-bold text-light" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-pane" type="button" role="tab" style="font-size:0.75rem; letter-spacing:0.1em; border-top: 2px solid var(--gold-primary) !important; color:var(--gold-light) !important; border-radius:0;">
                 <i class="bi bi-grid-3x3 me-1"></i> Poems ({{ poem_count }})
             </button>
         </li>
@@ -105,7 +105,7 @@
                             <a href="{% url 'poem_detail' poem.pk %}" class="ig-grid-item">
                                 
                                 <!-- Card content: Title & snippet -->
-                                <i class="bi bi-quote mb-2" style="font-size:1.4rem; color:rgba(192, 132, 252, 0.4);"></i>
+                                <i class="bi bi-quote mb-2" style="font-size:1.4rem; color:var(--gold-primary); opacity:0.6;"></i>
                                 <h6 class="fw-bold text-white text-center mb-1 text-truncate w-100" style="font-family:'Playfair Display', serif; font-size:1.05rem;">
                                     {{ poem.title }}
                                 </h6>
